@@ -1,0 +1,306 @@
+<html>
+<head>
+<title>Liga-Ergebnisse</title>
+	<link href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAUFBZUAAADVAgIC+QEBAfMDAwPFCQkJjgAAADMAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKEBAQok5OTv5QUFD/XFxc/2pqav9paWn/V1dX/1RUVP9L
+S0v+Dw8PngAAAAkAAAAAAAAAAAAAAAAAAAAGGxsbvnBwcP9kZGT/cHBw/3d3d/93d3f/d3d3/3Z2
+dv9paWn/YGBg/25ubv8ZGRm6AAAABAAAAAAAAAAADQ0NjnZ2dv89PT3/DAwM/2lpaf+Dg4P/g4OD
+/4ODg/+Dg4P/Tk5O/wAAAP8sLCz/b29v/woKCoYAAAAAAAAAMz4+Pv4pKSn/AAAA/wAAAP8RERH/
+cnJy/3V1df91dXX/ZWVl/wQEBP8AAAD/AAAA/yIiIv8/Pz/8AAAALBYWFqGVlZX/AAAA/wAAAP8A
+AAD/FRUV/5SUlP+dnZ3/nZ2d/3l5ef8BAQH/AAAA/wAAAP8EBAT/m5ub/xQUFJxCQkLcnp6e/wAA
+AP8AAAD/AAAA/35+fv+pqan/qamp/6mpqf+pqan/Tk5O/wAAAP8AAAD/BQUF/6ioqP87OzvbWFhY
+8aWlpf9CQkL/IyMj/zIyMv+2trb/tra2/7a2tv+2trb/tra2/66urv8sLCz/R0dH/2ZmZv+fn5//
+Tk5O81paWu2ZmZn/w8PD/8PDw/+ioqL/vr6+/8PDw//Dw8P/w8PD/8PDw/+np6f/uLi4/8LCwv/C
+wsL/mZmZ/1VVVeo3NzfLoqKi/9HR0f/R0dH/0NDQ/6Wlpf/Q0ND/0NDQ/9DQ0P/Q0ND/paWl/9DQ
+0P/Q0ND/0NDQ/6Kiov8vLy/OAAAAf29vb//d3d3/3d3d/93d3f/Gxsb/e3t7/4aGhv+AgID/f39/
+/9fX1//c3Nz/3Nzc/9zc3P9xcXH/AAAAhQAAACYaGhr84uLi/+rq6v/q6ur/tbW1/wAAAP8AAAD/
+AAAA/woKCv/Y2Nj/6enp/+np6f/f39//GRkZ/AAAACcAAAAAAAAAlV9fX//09PT/9vb2/21tbf8A
+AAD/AAAA/wAAAP8AAAD/hYWF//X19f/b29v/UVFR/wAAAIsAAAAAAAAAAAAAAAcKCgq2tra2/8zM
+zP9/f3//AwMD/wAAAP8AAAD/HBwc/66urv/Jycn/y8vL/xQUFKgAAAADAAAAAAAAAAAAAAAAAAAA
+CCYmJqO+vr7+/v7+/9XV1f9tbW3/bW1t//Hx8f/+/v7/s7Oz/iEhIZkAAAAFAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAPy4uLqVtbW3geHh49l1dXfRnZ2fZJycnnQAAADYAAAAAAAAAAAAAAAAA
+AAAA+C8AAPgbAADgBwAAwAMAAEADAAAAAQAAgAAAAAAAAAAAAQAAAAEAAAAAAADAAgAAgAEAAKAF
+AADoEwAA858AAA==" rel="shortcut icon" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script type="text/javascript">       
+    function createColumn(text) {
+        var elm = document.createElement("td");
+        elm.innerText = text;
+        return elm;
+    }
+
+    function createScoreColumn(text) {
+        var elm = createColumn(text);
+        elm.classList.add("score");
+        return elm;
+    }
+
+    function createDateColumn(text) {
+        var elm = createColumn(text);
+        elm.classList.add("date");
+        return elm;
+    }
+
+    function pad_left(str, char, count) {
+        while (str.length < count) {
+            str = char + str;
+        }
+        return str;
+    }
+
+    function same_day(date1, date2) {
+        return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
+    }
+	
+	function errorHandler(status = 0, text = null) {
+			var elm = document.getElementById("statusHint");
+			var text = "";
+			if (typeof(status) === "number") {
+				text = (status != 0 ? " " + status + ": " + text  : "");
+			}
+			elm.innerText = "Ein Fehler ist aufgetreten." + text;
+			elm.style.color = "red";
+	}
+
+    // by https://css-tricks.com/snippets/javascript/get-url-variables/
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) { return pair[1]; }
+        }
+        return (false);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+		var year = new Date().getFullYear();
+		
+        var load_league = "bl1";
+        var load_season = year;
+
+        var q_league = getQueryVariable("league");
+        var q_season = getQueryVariable("season");
+
+        if (q_league != false)
+            load_league = q_league;
+        if (q_season != false)
+            load_season = q_season;
+            
+        var load_url = "http://www.openligadb.de/api/getmatchdata/" + load_league + "/" + load_season.toString() + "/";
+
+        document.getElementById("info_league").innerText = load_league;
+        document.getElementById("info_season").innerText = load_season.toString();
+
+        var xmlHttp = new XMLHttpRequest();
+
+        xmlHttp.open("GET", load_url, true);
+		
+		xmlHttp.onerror = errorHandler;
+		xmlHttp.onprogress = function(evt) {
+			if (evt.lengthComputable) {
+				var percent = Math.round((evt.loaded / evt.total) * 100);
+				document.getElementById("statusProgress").innerText = percent.toString();
+			}
+		};
+		
+        xmlHttp.onreadystatechange = function () {
+			switch(xmlHttp.readyState) {
+			case 4:
+				var data = null;
+				try {
+					data = JSON.parse(xmlHttp.response);				
+				} catch(e) {
+					errorHandler(0, e.toString());
+					return;
+				}
+				
+				var msg = data.Message;
+				
+				if (xmlHttp.status != 200) {
+				console.log(xmlHttp);
+					errorHandler(xmlHttp.status, xmlHttp.statusText + (msg != undefined ? (" (" + msg + ")") : ""));
+					return;
+				}
+
+                var nFinished = 0;
+                var nNotFinished = 0;
+
+                data.forEach(function(elm) {
+					var finished = elm.MatchIsFinished;
+					var table = finished ? document.getElementById("matchTableFinished") : document.getElementById("matchTableNotFinished");
+                    var row = document.createElement("tr");
+                    var name_1 = createColumn(elm.Team1.TeamName);
+                    var name_2 = createColumn(elm.Team2.TeamName);
+                    var image_1 = elm.Team1.TeamIconUrl;
+                    var image_2 = elm.Team2.TeamIconUrl;
+
+                    name_1.classList.add("teamName"); 
+                    name_1.classList.add("teamLeft");
+                    name_1.style.backgroundImage = "url('" + image_1 + "')";
+
+                    name_2.classList.add("teamName");
+                    name_2.classList.add("teamRight");
+                    name_2.style.backgroundImage = "url('" + image_2 + "')";
+
+                    var date = new Date(Date.parse(elm.MatchDateTime));
+
+                    var date_str = pad_left(date.getDate().toString(), '0', 2) + "."
+                        + pad_left((date.getMonth() + 1).toString(), '0', 2) + "."
+                        + pad_left(date.getFullYear().toString(), '0', 4);
+
+                    var date_column = createDateColumn(date_str);
+
+                    if (same_day(date, new Date()) && !finished)
+                        row.style.color = "#e00";
+
+                    var result_1 = createScoreColumn("-");
+                    var result_2 = createScoreColumn("-");
+
+                    if (finished) {
+                        var results = elm.MatchResults[0];
+                        if (results.ResultOrderID != 2 && elm.MatchResults.length > 1)
+                            results = elm.MatchResults[1];
+
+                        var r1 = parseInt(results.PointsTeam1); 
+                        var r2 = parseInt(results.PointsTeam2);
+
+                        result_1 = createScoreColumn(r1);
+                        result_2 = createScoreColumn(r2);
+
+                        if (r1 > r2) {
+                            name_1.classList.add("winner");
+                            name_2.classList.add("loser");
+                            result_1.style.fontWeight = "bold";
+                        } else if (r2 > r1) {
+                            name_2.classList.add("winner");
+                            name_1.classList.add("loser");
+                            result_2.style.fontWeight = "bold";
+                        } else {
+                            name_1.classList.add("tie");
+                            name_2.classList.add("tie");
+                        }
+						
+                        row.appendChild(date_column);
+						
+                        ++nFinished;
+                    }
+					else {
+                        ++nNotFinished;
+					}
+
+                    row.appendChild(name_1);
+                    row.appendChild(result_1);
+                    row.appendChild(result_2);
+                    row.appendChild(name_2);
+					
+					if (!finished)
+                        row.appendChild(date_column);
+					
+					if (finished && table.childNodes.length != 0) {
+						table.insertBefore(row, table.childNodes[0]);
+					} else {
+						table.appendChild(row);
+					}
+                });
+
+                document.getElementById("tableContainer").style.visibility = "visible";
+                document.getElementById("statusHint").style.display = "none";
+				document.getElementById("statusProgessContainer").style.display = "none";
+
+                document.getElementById("finishedCount").innerText = nFinished.toString();
+                document.getElementById("notFinishedCount").innerText = nNotFinished.toString();
+				break;
+			}
+        };
+        xmlHttp.send();
+    });
+    </script>
+    <style type="text/css">
+        body {
+            font-family: "Open Sans";
+            -webkit-user-select: none;
+            cursor: default;
+            text-align: center;
+        }
+
+        table.matchTable {
+            border: 1px solid gray;
+            border-width: 1px;
+            border-collapse: collapse;
+            width: 100%;
+            margin: auto;
+        }
+
+        table.matchTable tr:hover td {
+            background-color: rgba(200, 200, 255, 0.5);
+        }
+
+        table.matchTable td {
+            padding: 8px;
+        }
+
+        table.matchTable td.teamName {
+            background-repeat: no-repeat;
+            background-position: 5px center;
+            background-size: 24px auto;
+            padding-left: 40px;
+        }
+
+        table.matchTable td.teamName.teamLeft {
+            text-align: right;
+            background-position: right 5px center;
+            padding-left: 8px;
+            padding-right: 40px;
+        }
+        
+        table.matchTable td.winner {
+            background-color: #cdffcd;
+        }
+        
+        table.matchTable td.loser {
+            background-color: #ffcdcd;
+        }
+
+        table.matchTable td.tie {
+            background-color: #feffcb;
+        }
+
+        table.matchTable td.score {
+            background-color: #eee;
+            text-align: center;
+            min-width: 1.5em;
+        }
+
+        table.matchTable td.date {
+            text-align: center;
+        }
+
+        .fat {
+            font-weight: bold;
+        }
+		
+		#statusProgessContainer {
+			font-weight: bold;
+		}
+    </style>
+</head>
+<body>
+    <p>Spieltage der Liga <span id="info_league" class="fat">-</span>, Saison <span id="info_season" class="fat">-</span></p>
+    <p id="statusHint">Wird geladen ...</p>
+	<p id="statusProgessContainer"><span id="statusProgress">0</span> %</p>
+    <div id="tableContainer" style="visibility: hidden;padding:0">
+        <div style="display:inline-block">
+            <h3>Beendete Begegnungen (<span id="finishedCount">-</span>)</h3>
+            <table id="matchTableFinished" class="matchTable" border="1"></table>
+        </div>
+        <div style="display: inline-block">
+            <h3>Ausstehende Begegnungen (<span id="notFinishedCount">-</span>)</h3>
+            <table id="matchTableNotFinished" class="matchTable" border="1"></table>
+        </div>
+        <br clear="all" />
+    </div>
+    <p style="font-size: 80%">Daten bereitgestellt durch <a href="http://www.openligadb.de/" target="_blank">openligadb.de</a></p>
+</body>
+</html>
