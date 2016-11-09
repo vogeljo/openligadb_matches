@@ -5,3 +5,6 @@ Stellt die Spiele einer beliebigen Liga von openligadb.de dar.
 ```
 ?league=Liga-Shortcut&season=Saison
 ```
+
+## GitHub Pages
+* [GitHub Pages-Veröffentlichung](https://vogeljo.github.io/openligadb_matches/)
